@@ -96,14 +96,14 @@ test() {
 # Function to run the tutorial
 run() {
     print_header "Running C++ Tutorial"
-    
-    if [ ! -f "$BUILD_DIR/cpp_tutorial" ]; then
+
+    if [ ! -f "$BUILD_DIR/src/cpp_tutorial" ]; then
         print_warning "Tutorial not built. Building first..."
         build
     fi
-    
+
     cd "$BUILD_DIR"
-    ./cpp_tutorial
+    ./src/cpp_tutorial
 }
 
 # Function to clean build
