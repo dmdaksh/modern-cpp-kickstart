@@ -69,22 +69,15 @@ Automatic resource management with custom cleanup.
 ```cpp
 #include "core/utils.hpp"
 
-// Example: File handle management
-auto file = RaiiWrapper<FILE*>(
-    fopen("data.txt", "r"),
-    [](FILE* f) { if (f) fclose(f); }
-);
+// Example Usage:
+// auto file = makeRaiiWrapper(fopen("data.txt", "r"), fclose);
+// if (file.get()) { /* ... */ }
+// // File is automatically closed when 'file' goes out of scope.
 
-if (file.get()) {
-    // Use file safely - automatically closed when out of scope
-}
-```
-
-**Methods:**
-
-- `get() -> T&` - Access wrapped resource
-- `reset(T new_resource)` - Replace resource
-- `release() -> T` - Release ownership
+// Methods:
+// get() const -> T          - Accesses the wrapped resource.
+// reset()                   - Releases the current resource and resets the wrapper.
+// explicit operator bool() const - Checks if the wrapper holds a valid resource.
 
 #### Config
 
@@ -102,9 +95,10 @@ auto name = config.get<std::string>("app_name");    // Returns "MyApp"
 **Methods:**
 
 - `set<T>(key, value)` - Store typed value
-- `get<T>(key, default_value)` - Retrieve with default
+- `getOrDefault<T>(key, defaultValue)` - Retrieve with default
 - `get<T>(key)` - Retrieve (throws if missing)
 - `has(key) -> bool` - Check existence
+- `remove(key) -> void` - Removes a key-value pair.
 
 #### Logger
 
@@ -166,6 +160,7 @@ logger.error("Error occurred");
 ./scripts/build.sh build      # Build project
 ./scripts/build.sh test       # Run tests
 ./scripts/build.sh run        # Run tutorial
+./scripts/build.sh examples   # Build standalone examples
 ./scripts/build.sh clean      # Clean build
 ./scripts/build.sh format     # Format code
 ./scripts/build.sh analyze    # Static analysis

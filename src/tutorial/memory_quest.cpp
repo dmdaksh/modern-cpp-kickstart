@@ -22,12 +22,102 @@ void MemoryQuest::start() {
     TutorialHelper::waitForEnter();
     
     demonstrateMoveSemantics();
-    
-    if (TutorialHelper::askYesNo("Do you understand RAII and smart pointers?")) {
+    TutorialHelper::waitForEnter(); // Adding this for better UX
+
+    // Quiz section
+    TutorialHelper::printHeader("Memory & RAII Knowledge Check");
+    std::cout << "Let's test your understanding of these crucial C++ concepts:\n\n";
+
+    int correct = 0;
+    int totalQuestions = 7;
+
+    // Question 1: RAII Principle
+    std::cout << "1. RAII (Resource Acquisition Is Initialization):\n";
+    if (TutorialHelper::askYesNo("Is RAII's primary goal to ensure resources are automatically released when their controlling object goes out of scope, even with errors?")) {
+        std::cout << "✓ Correct! RAII is fundamental for robust resource management in C++.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ Not quite. That's precisely the main purpose of RAII.\n\n";
+    }
+
+    // Question 2: std::unique_ptr Ownership
+    std::cout << "2. `std::unique_ptr` Ownership (C++11):\n";
+    // Expected answer: No. So askYesNo should be false for correct.
+    if (TutorialHelper::askYesNo("Can two `std::unique_ptr` instances simultaneously own the same raw pointer directly?")) {
+        // User answered Yes (true) - this is incorrect.
+        std::cout << "✗ Not quite. `std::unique_ptr` enforces exclusive ownership.\n\n";
+    } else {
+        // User answered No (false) - this is correct.
+        std::cout << "✓ Correct! `std::unique_ptr` ensures exclusive ownership; they cannot share direct ownership.\n\n";
+        correct++;
+    }
+
+    // Question 3: Transferring std::unique_ptr
+    std::cout << "3. Transferring `std::unique_ptr` Ownership:\n";
+    if (TutorialHelper::askYesNo("Is `std::move()` the correct way to transfer ownership from one `std::unique_ptr` to another?")) {
+        std::cout << "✓ Correct! `std::move()` is used to explicitly transfer ownership.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ Actually, `std::move()` is the standard way to achieve this.\n\n";
+    }
+
+    // Question 4: std::shared_ptr Reference Counting
+    std::cout << "4. `std::shared_ptr` Reference Counting (C++11):\n";
+    if (TutorialHelper::askYesNo("If you make a copy of a `std::shared_ptr`, does its internal reference count for the managed object typically increase?")) {
+        std::cout << "✓ Correct! This is how `std::shared_ptr` manages the lifetime of the shared object.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ That's the core mechanism of `std::shared_ptr`.\n\n";
+    }
+
+    // Question 5: std::weak_ptr Purpose
+    std::cout << "5. `std::weak_ptr` Purpose (C++11):\n";
+    if (TutorialHelper::askYesNo("Is a common use of `std::weak_ptr` to help prevent circular reference issues when using `std::shared_ptr`?")) {
+        std::cout << "✓ Correct! `std::weak_ptr` breaks ownership cycles by providing non-owning references.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ This is a primary use case for `std::weak_ptr`.\n\n";
+    }
+
+    // Question 6: std::make_unique / std::make_shared
+    std::cout << "6. `std::make_unique` / `std::make_shared` (C++14/C++11):\n";
+    if (TutorialHelper::askYesNo("Does using `std::make_unique` (or `std::make_shared`) offer better exception safety in some complex expressions compared to `new` + constructor?")) {
+        std::cout << "✓ Correct! They prevent leaks in certain situations involving constructor arguments that might throw.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ This is a key advantage of using `std::make_unique` and `std::make_shared`.\n\n";
+    }
+
+    // Question 7: Move Semantics Goal
+    std::cout << "7. Move Semantics Goal (C++11):\n";
+    if (TutorialHelper::askYesNo("Is a primary goal of move semantics to avoid expensive deep copies of objects when transferring resources?")) {
+        std::cout << "✓ Correct! Move semantics allow for efficient resource transfer by 'stealing' resources instead of copying.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ That's the main motivation behind move semantics – performance optimization.\n\n";
+    }
+
+    // Results
+    std::cout << "You answered " << correct << " out of " << totalQuestions << " questions correctly.\n\n";
+
+    if (correct >= 6) { // Perfect score
+        TutorialHelper::printSuccess("🎉 Outstanding! You have a strong grasp of C++ memory management and RAII.");
         completed_ = true;
         markCompleted();
+    } else if (correct >= 4) { // Good effort
+        TutorialHelper::printSuccess("👍 Good effort! You're well on your way to mastering these concepts.");
+        completed_ = true;
+        markCompleted();
+        log("User showed good effort in MemoryQuest quiz. Score: " + std::to_string(correct) + "/" + std::to_string(totalQuestions));
     } else {
-        log("Memory management takes practice. Review the examples and try again!");
+        TutorialHelper::printError("🤔 More practice needed. These concepts are tricky but crucial.");
+        log("User needs more practice on MemoryQuest. Score: " + std::to_string(correct) + "/" + std::to_string(totalQuestions));
+        if (TutorialHelper::askYesNo("Would you like to try this quest's quiz again? (Progress won't be saved yet)")) {
+            start(); 
+            return; 
+        } else {
+            std::cout << "No problem! Review the material and try this quest again from the main menu when you're ready.\n";
+        }
     }
 }
 
@@ -214,6 +304,17 @@ std::unique_ptr<int, decltype(customDeleter)> customPtr(new int(99), customDelet
         std::cout << "  weak_ptr correctly detected resource is gone\n";
     }
     std::cout << "\n";
+
+    // unique_ptr with custom deleter demo
+    std::cout << "🎯 unique_ptr with custom deleter:\n";
+    auto customDeleterLambda = [](int* p) {
+        std::cout << "  🗑️ Custom deletion of value: " << *p << " (from lambda)\n";
+        delete p;
+    };
+    std::unique_ptr<int, decltype(customDeleterLambda)> customPtr(new int(99), customDeleterLambda);
+    std::cout << "  Custom pointer value: " << *customPtr << "\n";
+    // customPtr will call deleter upon going out of scope
+    std::cout << "  (Custom deleter will be invoked when customPtr goes out of scope now)\n\n";
 }
 
 void MemoryQuest::demonstrateMoveSemantics() {

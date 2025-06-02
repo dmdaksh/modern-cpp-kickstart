@@ -22,12 +22,105 @@ void OOPQuest::start() {
     TutorialHelper::waitForEnter();
     
     demonstrateRuleOfFive();
+    TutorialHelper::waitForEnter(); // Added for better flow before quiz
+
+    // Quiz section
+    TutorialHelper::printHeader("OOP Concepts & Rule of Five Check");
+    std::cout << "Let's test your grasp of these important C++ OOP features:\n\n";
+
+    int correct = 0;
+    int totalQuestions = 7;
+
+    // Question 1: Access Specifiers
+    std::cout << "1. Access Specifiers:\n";
+    // Expected: No. So askYesNo should be false for correct.
+    if (TutorialHelper::askYesNo("If a class member is declared `private`, can it be directly accessed by functions outside the class?")) {
+        // User answered Yes (true) - this is incorrect.
+        std::cout << "✗ Not quite. `private` members are only accessible within the class itself.\n\n";
+    } else {
+        // User answered No (false) - this is correct.
+        std::cout << "✓ Correct! `private` members enforce encapsulation and are not accessible from outside.\n\n";
+        correct++;
+    }
+
+    // Question 2: const-Correctness
+    std::cout << "2. `const`-Correctness:\n";
+    if (TutorialHelper::askYesNo("Should a class member function be marked `const` if it does not modify any of the object's data members (excluding mutable members)?")) {
+        std::cout << "✓ Correct! This is a key aspect of `const`-correctness, allowing the function to be called on `const` objects.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ That's generally the best practice for `const`-correctness.\n\n";
+    }
+
+    // Question 3: Pure Virtual Functions
+    std::cout << "3. Pure Virtual Functions:\n";
+    if (TutorialHelper::askYesNo("If a class contains at least one pure virtual function (e.g., `virtual void draw() = 0;`), does this make the class an abstract class?")) {
+        std::cout << "✓ Correct! Abstract classes with pure virtual functions cannot be instantiated directly and must be implemented by derived classes.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ That's the definition of an abstract class in C++.\n\n";
+    }
+
+    // Question 4: Virtual Destructors
+    std::cout << "4. Virtual Destructors:\n";
+    if (TutorialHelper::askYesNo("Is it important for a base class to have a `virtual` destructor if objects of derived classes will be deleted through a base class pointer?")) {
+        std::cout << "✓ Correct! This ensures that the correct derived class destructor is called, preventing resource leaks.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ This is crucial for preventing undefined behavior and resource leaks in polymorphic hierarchies.\n\n";
+    }
+
+    // Question 5: override Keyword (C++11)
+    std::cout << "5. `override` Keyword (C++11):\n";
+    if (TutorialHelper::askYesNo("Does using `override` on a derived class's virtual function help the compiler check if it's actually overriding a base class function?")) {
+        std::cout << "✓ Correct! `override` helps catch errors like mismatched function signatures during compilation.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ That's a primary benefit of using the `override` specifier.\n\n";
+    }
+
+    // Question 6: Rule of Five
+    std::cout << "6. Rule of Five:\n";
+    if (TutorialHelper::askYesNo("If a class manually manages a resource (e.g., raw pointer) and you write a custom destructor, do you often need to also implement copy/move constructors and assignment operators?")) {
+        std::cout << "✓ Correct! This is the essence of the Rule of Three/Five to ensure proper resource management and prevent issues like double frees or shallow copies.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ This is a fundamental guideline for classes managing resources directly.\n\n";
+    }
     
-    if (TutorialHelper::askYesNo("Do you understand OOP principles and the Rule of Five?")) {
+    // Question 7: final Specifier (C++11 Classes)
+    std::cout << "7. `final` Specifier on Classes (C++11):\n";
+    // Expected: No. So askYesNo should be false for correct.
+    if (TutorialHelper::askYesNo("If a class is declared as `class MyClass final { ... };`, can another class inherit from `MyClass`?")) {
+        // User answered Yes (true) - this is incorrect.
+        std::cout << "✗ Not quite. `final` prevents further inheritance from that class.\n\n";
+    } else {
+        // User answered No (false) - this is correct.
+        std::cout << "✓ Correct! The `final` specifier prohibits derivation from the class.\n\n";
+        correct++;
+    }
+
+    // Results
+    std::cout << "You answered " << correct << " out of " << totalQuestions << " questions correctly.\n\n";
+
+    if (correct >= 6) { // Perfect score
+        TutorialHelper::printSuccess("🎉 Excellent! Your understanding of C++ OOP principles is strong.");
         completed_ = true;
         markCompleted();
+    } else if (correct >= 4) { // Good effort
+        TutorialHelper::printSuccess("👍 Good work! You've got a good handle on many OOP concepts.");
+        completed_ = true;
+        markCompleted();
+        log("User showed good effort in OOPQuest quiz. Score: " + std::to_string(correct) + "/" + std::to_string(totalQuestions));
     } else {
-        log("OOP takes practice. Review the examples and try again!");
+        TutorialHelper::printError("🤔 Keep studying! OOP is a cornerstone of C++, and mastery comes with practice.");
+        log("User needs more practice on OOPQuest. Score: " + std::to_string(correct) + "/" + std::to_string(totalQuestions));
+        if (TutorialHelper::askYesNo("Would you like to try this quest's quiz again? (Progress won't be saved yet)")) {
+            start(); 
+            return; 
+        } else {
+            std::cout << "No problem! You can review the OOP concepts and restart this quest anytime from the main menu.\n";
+        }
     }
 }
 

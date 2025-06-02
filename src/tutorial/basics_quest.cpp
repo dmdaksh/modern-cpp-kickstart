@@ -44,45 +44,97 @@ void BasicsQuest::start() {
     std::cout << "Let's test your understanding with a few questions:\n\n";
 
     int correct = 0;
+    int totalQuestions = 7; // Updated total number of questions
 
-    // Question 1
-    std::cout << "1. What does 'auto' do in C++?\n";
-    std::cout << "   a) Automatically allocates memory\n";
-    std::cout << "   b) Lets the compiler deduce the type\n";
-    std::cout << "   c) Makes variables constant\n";
-    if (TutorialHelper::askYesNo("Is the answer 'b'")) {
-        std::cout << "✓ Correct! 'auto' enables type deduction.\n\n";
+    // Question 1: auto type deduction
+    std::cout << "1. Regarding `auto` type deduction in C++ (e.g., `auto x = 10;`):\n";
+    if (TutorialHelper::askYesNo("Does `auto` primarily let the compiler deduce the variable's type?")) {
+        std::cout << "✓ Correct! `auto` is a powerful feature for type inference, making code cleaner.\n\n";
         correct++;
     } else {
-        std::cout << "✗ Not quite. 'auto' lets the compiler figure out the type.\n\n";
+        std::cout << "✗ Not quite. `auto` indeed lets the compiler deduce the type from the initializer.\n\n";
     }
 
-    // Question 2
-    std::cout << "2. What's the advantage of range-based for loops?\n";
-    std::cout << "   - Cleaner syntax\n";
-    std::cout << "   - Automatically handles container bounds\n";
-    std::cout << "   - Less error-prone than traditional loops\n";
-    if (TutorialHelper::askYesNo("Are all of these advantages correct")) {
-        std::cout << "✓ Excellent! Range-based loops are indeed safer and cleaner.\n\n";
+    // Question 2: Range-based for loops
+    std::cout << "2. Concerning range-based for loops (e.g., `for (int i : my_vector)`):\n";
+    if (TutorialHelper::askYesNo("Is a key advantage that they simplify iteration and help prevent common errors like off-by-one?")) {
+        std::cout << "✓ Excellent! Range-based for loops enhance readability and safety.\n\n";
         correct++;
     } else {
-        std::cout << "✗ Actually, all of these are benefits of range-based for loops.\n\n";
+        std::cout << "✗ Actually, that's a primary benefit of range-based for loops.\n\n";
+    }
+
+    // Question 3: Uniform Initialization (C++11)
+    TutorialHelper::printCode("int x{5};\nstd::vector<int> v{1,2,3};");
+    std::cout << "3. Uniform Initialization (C++11) using curly braces `{}` (as shown above):\n";
+    if (TutorialHelper::askYesNo("Does this initialization style help prevent narrowing conversions (e.g., `int x{7.5};` would be a warning/error)?")) {
+        std::cout << "✓ Correct! Uniform initialization is stricter about type conversions, preventing potential data loss.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ Not quite. This is a key safety feature of uniform initialization.\n\n";
+    }
+
+    // Question 4: If with Initializer (C++17)
+    std::cout << "4. Consider 'if with initializer' (e.g., `if (auto val = getValue(); val > 10) {...}`):\n";
+    if (TutorialHelper::askYesNo("Is a primary benefit that the initialized variable's scope (e.g., `val`) is limited to the if/else block?")) {
+        std::cout << "✓ Correct! This enhances encapsulation and reduces variable scope, leading to cleaner code.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ That's one of the main advantages, promoting better resource management and readability.\n\n";
+    }
+
+    // Question 5: Scoped Enums (C++11)
+    std::cout << "5. With C++11 scoped enums (e.g., `enum class MyEnum { ValA, ValB };`):\n";
+    if (TutorialHelper::askYesNo("Do you need to qualify enum values with the enum's name (e.g., `MyEnum::ValA`)?")) {
+        std::cout << "✓ Correct! Scoped enums prevent naming conflicts and improve type safety.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ Not quite. Scoped enums require qualification (e.g., `MyEnum::ValA`), unlike unscoped enums.\n\n";
+    }
+
+    // Question 6: Constexpr Functions (C++11)
+    std::cout << "6. Regarding `constexpr` functions in C++11:\n";
+    if (TutorialHelper::askYesNo("Can a `constexpr` function, if given constant inputs, be evaluated at compile-time?")) {
+        std::cout << "✓ Correct! This allows for compile-time computation, potentially improving runtime performance.\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ That's the core idea behind `constexpr` functions – shifting computation to compile time where possible.\n\n";
+    }
+
+    // Question 7: Generic Lambdas (C++14)
+    TutorialHelper::printCode("auto add = [](auto a, auto b) { return a + b; };");
+    std::cout << "7. The generic lambda `add` shown above (using `auto` for parameters, C++14 feature):\n";
+    if (TutorialHelper::askYesNo("Can this lambda be used to add two integers AND concatenate two `std::string` objects?")) {
+        std::cout << "✓ Correct! Generic lambdas adapt to different types that support the operations within them (like `+`).\n\n";
+        correct++;
+    } else {
+        std::cout << "✗ Actually, it can! That's the power of generic lambdas.\n\n";
     }
 
     // Results
-    if (correct >= 2) {
-        std::cout << "🎉 Perfect score! You've mastered the basics.\n";
+    std::cout << "You answered " << correct << " out of " << totalQuestions << " questions correctly.\n\n";
+
+    if (correct >= 6) { // Perfect score threshold adjusted
+        TutorialHelper::printSuccess("🎉 Perfect score! You've truly mastered these C++ basics.");
         completed_ = true;
         markCompleted();
-    } else if (correct == 1) {
-        std::cout << "Good effort! You're getting there.\n";
-        if (TutorialHelper::askYesNo("Would you like to mark this quest as complete anyway")) {
-            completed_ = true;
-            markCompleted();
-        }
+    } else if (correct >= 4) { // Good effort threshold adjusted
+        TutorialHelper::printSuccess("👍 Good effort! You have a solid understanding.");
+        completed_ = true; // Mark as completed for good effort
+        markCompleted();
+        log("User showed good effort in BasicsQuest quiz.");
     } else {
-        std::cout << "No worries! Review the examples and try again when ready.\n";
-        log("Take your time to review the concepts. You can restart this quest anytime!");
+        TutorialHelper::printError("🤔 Keep practicing! Review the examples and explanations.");
+        log("User needs more practice on BasicsQuest. Score: " + std::to_string(correct) + "/" + std::to_string(totalQuestions));
+        if (TutorialHelper::askYesNo("Would you like to try the quiz again now? (Your progress on the quest won't be saved yet)")) {
+            // Reset correct answers and restart quiz part.
+            // This is a simplified approach; a more robust way might involve a loop or separate function.
+            start(); // This will restart the whole quest, including demos. For a quiz-only retry, more refactoring is needed.
+                     // For now, restarting the quest is an acceptable simplification for this context.
+            return; // Prevent further execution in this call
+        } else {
+             std::cout << "No worries! You can restart this quest from the main menu anytime.\n";
+        }
     }
 }
 
